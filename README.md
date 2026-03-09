@@ -31,21 +31,28 @@ The server receives Pulse Code Modulation (PCM), converts to a WAV audio recordi
 ## Installation
 
 1. Clone the Repository
-`git clone https://github.com/Knu09/stethosmart-server.git`
-`cd stethosmart-server`
+```bash
+git clone https://github.com/Knu09/stethosmart-server.git
+cd stethosmart-server
+```
 
 2. Create a Virtual Environment
-`python -m venv venv`
-`source venv/bin/activate`
+```bash
+python -m venv venv
+source venv/bin/activate
+```
 
 3. Install Dependencies
-`pip install -r requirements.txt`
+```bash
+pip install -r requirements.txt
+```
 
 ## Running the Server
 
 Start the Flask API server:
-
-* python server.py
+``` bash
+python server.py
+```
 
 The server will run on:
 
@@ -64,9 +71,10 @@ Multipart form upload:
 * file: lung_sound.wav
 
 Example using curl:
-
-* curl -X POST http://localhost:5000/predict_pcm \
+```bash
+curl -X POST http://localhost:5000/predict_pcm \
   --data-binary @pcm_data.pcm
+```
 
 ## Audio Requirements
 
@@ -82,4 +90,6 @@ The server expects audio in the following format:
 This project is part of the StethoSmart research and development system.
 
 ## Authors
-16kHz Labs - [https://github.com/Knu09] and [https://github.com/rafaeljacov/rafaeljacov]
+16kHz Labs
+* [https://github.com/Knu09]
+* [https://github.com/rafaeljacov/rafaeljacov]
