@@ -45,19 +45,23 @@ model.to(device)
 model.eval()
 
 # scaler = torch.load("./scalar/scaler.pth")
+
+# constant value of mean and std
 mean = -24.94361114501953  # mean value of the model
 std = 51.13204574584961  # standard deviation value of the model
+
 
 # -----------------------
 # ROOT ROUTE
 # -----------------------
-
-
 @app.route("/")
 def index():
     return jsonify({"status": "running", "model": "LungSoundCNN"})
 
 
+# -----------------------
+# EVALUATE THROUGH DATASET
+# -----------------------
 def evaluate_dataset(dataset_path, diag_map):
 
     for file in os.listdir(dataset_path):
@@ -82,6 +86,9 @@ def evaluate_dataset(dataset_path, diag_map):
         print("--------------------------------------------------")
 
 
+# -----------------------
+# PRINT IN THERMAL PRINTER USING EASPOS
+# -----------------------
 def print_escpos(prediction, confidence):
     # Replace with your printer IDs
     p = Usb(0x0483, 0x5840, out_ep=0x04, in_ep=0x82)
@@ -121,6 +128,9 @@ def print_escpos(prediction, confidence):
     p.cut()
 
 
+# -----------------------
+# TESTING PURPOSE
+# -----------------------
 def main():
     final_pred = predict_recording(WAV_PATH)
     print(f"Final Prediction: {final_pred}")
@@ -190,6 +200,7 @@ def predict_pcm():
 
     print(sample_rate)
 
+    # File request
     # if "file" not in request.files:
     #     return jsonify({"error": "No file uploaded"}), 400
     #
@@ -224,13 +235,12 @@ def predict_pcm():
         pass
         # os.remove(wav_path)
 
-        # -----------------------
-        # RUN SERVER
-        # -----------------------
-
 
 if __name__ == "__main__":
     # Testing purposes only
     # main()
 
+    # -----------------------
+    # RUN SERVER
+    # -----------------------
     app.run(host="0.0.0.0", port=5000, debug=True)
