@@ -28,6 +28,19 @@ The server receives Pulse Code Modulation (PCM), converts to a WAV audio recordi
 * soundfile
 * pydub (optional)
 
+## Installation
+
+1. Clone the Repository
+`git clone https://github.com/Knu09/stethosmart-server.git`
+`cd stethosmart-server`
+
+2. Create a Virtual Environment
+`python -m venv venv`
+`source venv/bin/activate`
+
+3. Install Dependencies
+`pip install -r requirements.txt`
+
 ## Running the Server
 
 Start the Flask API server:
