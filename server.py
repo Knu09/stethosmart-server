@@ -5,6 +5,7 @@ import tempfile
 import numpy as np
 import wave
 from escpos.printer import Usb, Serial
+import subprocess
 
 from preprocess.preprocess import extract_features, segmentation, load_icbhi_labels
 from lw_cnn_model import LungSoundCNN
@@ -189,16 +190,29 @@ def test():
 @app.route("/predict_pcm", methods=["POST"])
 def predict_pcm():
 
+    # get request binary data from the esp32-s3
     pcm_data = request.get_data()
+
+    print(f"PCM Data: {len(pcm_data)}")
+
     if not pcm_data:
         return jsonify({"error": "No PCM data received."}), 400
+
+    # write pcm_data to binary file
+    with open("pcm_data.bin", "wb") as w:
+        w.write(pcm_data)
+
+    # to run the compiled conversion
+    subprocess.run(["./wav_conv"])
+
+    # Read file from the conversion
+    with open("lung.wav", "rb") as f:
+        wav_path = f.read()
 
     # configs
     sample_rate = 16000
     channel = 1
     sample_width = 2  # 16-bit PCM
-
-    print(sample_rate)
 
     # File request
     # if "file" not in request.files:
@@ -209,18 +223,18 @@ def predict_pcm():
     # if file.filename == "":
     #     return jsonify({"error": "Empty filename"}), 400
 
-    # Save temporarily
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
-        # file.save(tmp.name)
-        wav_path = tmp.name
-        print(f"wav path: {wav_path}")
-
-    # Convert PCM to WAV
-    with wave.open(wav_path, "wb") as wf:
-        wf.setnchannels(channel)
-        wf.setsampwidth(sample_width)
-        wf.setframerate(sample_rate)
-        wf.writeframes(pcm_data)
+    # # Save temporarily
+    # with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+    #     # file.save(tmp.name)
+    #     wav_path = tmp.name
+    #     print(f"wav path: {wav_path}")
+    #
+    # # Convert PCM to WAV
+    # with wave.open(wav_path, "wb") as wf:
+    #     wf.setnchannels(channel)
+    #     wf.setsampwidth(sample_width)
+    #     wf.setframerate(sample_rate)
+    #     wf.writeframes(audio_samples.tobytes())
 
     try:
         prediction, confidence = predict_recording(wav_path)
