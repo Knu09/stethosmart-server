@@ -205,9 +205,8 @@ def predict_pcm():
     # to run the compiled conversion
     subprocess.run(["./wav_conv"])
 
-    # Read file from the conversion
-    with open("lung.wav", "rb") as f:
-        wav_path = f.read()
+    # File path after the conversion
+    wav_path = "./lung.wav"
 
     # configs
     sample_rate = 16000
