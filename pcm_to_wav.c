@@ -41,7 +41,7 @@ int main() {
   const int buffer_size = sample_rate * duration;
 
   wavh.dlength = buffer_size * wavh.bytes_per_sample;
-  wavh.flength = wavh.dlength + 44;
+  wavh.flength = wavh.dlength + 36;
 
   FILE *in = fopen("pcm_data.bin", "rb");
   FILE *out = fopen("lung.wav", "wb");
