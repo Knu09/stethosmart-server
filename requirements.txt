@@ -4,3 +4,5 @@ librosa
 numpy
 soundfile
 pydub
+python-escpos
+opencv-python

@@ -26,6 +26,8 @@ The server receives Pulse Code Modulation (PCM), converts to a WAV audio recordi
 * librosa
 * numpy
 * soundfile
+* python-escpos
+* opencv-python
 * pydub (optional)
 
 ## Installation
