@@ -5,6 +5,9 @@ import tempfile
 import numpy as np
 import wave
 from escpos.printer import Usb, Serial
+import usb.core
+import usb.util
+
 import subprocess
 
 from preprocess.preprocess import extract_features, segmentation, load_icbhi_labels
