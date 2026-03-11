@@ -9,11 +9,12 @@ import subprocess
 
 from preprocess.preprocess import extract_features, segmentation, load_icbhi_labels
 from lw_cnn_model import LungSoundCNN
+from datetime import datetime
 
 # -----------------------
 # PATHS
 # -----------------------
-# WAV_PATH = "../dataset/ICBHI_final_database/226_pneumonia_1b1_Pl_sc_LittC2SE.wav"
+WAV_PATH = "../dataset/ICBHI_final_database/226_pneumonia_1b1_Pl_sc_LittC2SE.wav"
 
 MODEL_PATH = "./models/lung_model_03_08_2026_10_52.pth"
 
@@ -50,6 +51,10 @@ model.eval()
 # constant value of mean and std
 mean = -24.94361114501953  # mean value of the model
 std = 51.13204574584961  # standard deviation value of the model
+
+now = datetime.now()
+# Format as "YYYY-MM-DD HH:MM:SS"
+formatted_time = now.strftime("%Y-%m-%d %H:%M:%S")
 
 
 # -----------------------
@@ -93,40 +98,50 @@ def evaluate_dataset(dataset_path, diag_map):
 def print_escpos(prediction, confidence):
     # Replace with your printer IDs
     p = Usb(0x0483, 0x5840, out_ep=0x04, in_ep=0x82)
-    # p = Serial("/dev/usb/lp0")
+    try:
+        # p = Serial("/dev/usb/lp0")
 
-    # Title
-    p.set(align="center", bold=True, width=2, height=2)
-    p.text("STETHOSMART\n")
+        # Title
+        p.set(align="center", bold=True, width=2, height=2)
+        p.text("STETHOSMART\n")
 
-    p.set(align="center", bold=False, width=1, height=1)
-    p.text("Diagnosis Report\n")
-    p.text("------------------------------\n\n")
+        p.set(align="center", bold=False, width=1, height=1)
+        p.text("Diagnosis Report\n")
+        p.text("------------------------------\n\n")
 
-    # Patient info
-    p.set(align="left")
-    p.text("Patient's Name: _______________\n")
-    p.text("Date: ___________\n\n")
+        # Patient info
+        p.set(align="left")
+        # p.text(f"Filename Name: {file_path}\n")
+        p.text("Patient's Name: \n")
+        p.text(f"Date: {formatted_time}\n\n")
 
-    # Diagnosis result
-    p.text("Diagnosis Result:\n")
-    p.set(bold=True)
-    p.text(f"{prediction}\n\n")
-    p.set(bold=False)
+        # Diagnosis result
+        p.text("Diagnosis Result:\n")
+        p.set(bold=True)
+        p.text(f"{prediction}\n\n")
+        p.set(bold=False)
 
-    # Confidence score
-    p.text("Model Confidence Score:\n")
-    p.set(bold=True)
-    p.text(f"{round(confidence * 100, 2)}%\n\n")
-    p.set(bold=False)
+        # Confidence score
+        p.text("Model Confidence Score:\n")
+        p.set(bold=True)
+        p.text(f"{round(confidence * 100, 2)}%\n\n")
+        p.set(bold=False)
 
-    # Doctor signature area (right-center)
-    p.set(align="center")
-    p.text("\n\n")
-    p.text("________________________\n")
-    p.text("Doctor's Signature\n")
+        # Doctor signature area (right-center)
+        p.set(align="center")
+        p.text("\n\n")
+        p.text("________________________\n")
+        p.text("Doctor's Signature\n")
 
-    p.cut()
+        p.cut()
+    except usb.core.USBError as e:
+        print(f"USB Error: {e}")
+    finally:
+        try:
+            if p:
+                usb.util.dispose_resources(p.device)  # release device
+        except Exception:
+            pass
 
 
 # -----------------------
@@ -235,18 +250,15 @@ def predict_pcm():
     #     wf.setframerate(sample_rate)
     #     wf.writeframes(audio_samples.tobytes())
 
-    try:
-        prediction, confidence = predict_recording(wav_path)
-        print_escpos(prediction, confidence)
-        print(f"Diagnose Result: ${prediction}")
-        print(f"Model's Confidence Score: ${confidence}")
+    prediction, confidence = predict_recording(wav_path)
+    print(f"Diagnose Result: ${prediction}")
+    print(f"Model's Confidence Score: ${confidence}")
 
-        response = {"prediction": prediction, "confidence": round(confidence, 4)}
+    print_escpos(prediction, confidence)
 
-        return jsonify(response)
-    finally:
-        pass
-        # os.remove(wav_path)
+    response = {"prediction": prediction, "confidence": round(confidence, 4)}
+
+    return jsonify(response)
 
 
 if __name__ == "__main__":
