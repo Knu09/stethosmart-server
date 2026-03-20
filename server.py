@@ -30,8 +30,8 @@ ICBHI_DATASET_PATH = "../dataset/ICBHI_final_database/"
 # Label encoding
 idx_to_label = {
     0: "Asthma",
-    1: "Chronic Obstructive Pulmonary Disease (COPD)",
-    2: "Healthy",
+    1: "Healthy",
+    2: "Chronic Obstructive Pulmonary Disease (COPD)",
     3: "Pneumonia",
 }
 
@@ -98,7 +98,7 @@ def evaluate_dataset(dataset_path, diag_map):
 # -----------------------
 # PRINT IN THERMAL PRINTER USING EASPOS
 # -----------------------
-def print_escpos(prediction, confidence, pred):
+def print_escpos(prediction, confidence):
     # Replace with your printer IDs
     p = Usb(0x0483, 0x5840, out_ep=0x04, in_ep=0x82)
     try:
@@ -121,7 +121,7 @@ def print_escpos(prediction, confidence, pred):
         # Diagnosis result
         p.text("Diagnosis Result:\n")
         p.set(bold=True)
-        p.text(f"{pred}\n\n")
+        p.text(f"{prediction}\n\n")
         p.set(bold=False)
 
         # Confidence score
@@ -254,28 +254,34 @@ def predict_pcm():
     #     wf.writeframes(audio_samples.tobytes())
 
     prediction, confidence = predict_recording(wav_path)
-    print(f"Diagnose Result: ${prediction}")
+    # print(f"Diagnose Result: ${prediction}")
+    print(f"Possible Disease Present: ${prediction}")
     print(f"Model's Confidence Score: ${confidence}")
 
-    print("====== CLASSES ======\n[1] Healthy\n[2] Asthma\n[3] Pneumonia\n[4] COPD\n")
+    # print("====== CLASSES ======\n[1] Healthy\n[2] Asthma\n[3] Pneumonia\n[4] COPD\n")
+    #
+    # choice = int(input("Enter your prediction: "))
+    #
+    # match choice:
+    #     case 1:
+    #         pred = "Healthy"
+    #     case 2:
+    #         pred = "Asthma"
+    #     case 3:
+    #         pred = "Pneumonia"
+    #     case 4:
+    #         pred = "COPD"
+    #     case _:
+    #         pred = "Unknown"
 
-    choice = int(input("Enter your prediction: "))
+    print_escpos(prediction, confidence)
 
-    match choice:
-        case 1:
-            pred = "Healthy"
-        case 2:
-            pred = "Asthma"
-        case 3:
-            pred = "Pneumonia"
-        case 4:
-            pred = "COPD"
-        case _:
-            pred = "Unknown"
-
-    print_escpos(prediction, confidence, pred)
-
-    response = {"prediction": prediction, "confidence": round(confidence, 4)}
+    response = {
+        "prediction": prediction,
+        "confidence": confidence,
+        "date_time": formatted_time,
+    }
+    print(response)
 
     return jsonify(response)
 
